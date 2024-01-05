@@ -74,11 +74,56 @@
  
  11) 자바스크립트 인라인.
  - 타임리프는 자바스크립트에서 타임리프를 편리하게 사용할수이쓴 자바스크립트 인라인기능을 제공하는
- - <script th:inline = "javascript">
+ - <script th:inline = "javascript"></script>
  - 인라인 사용전 : [[${user.username}]] > userA로 반환
  - 인라인 사용 후 : [[${user.username}]] > "userA"로 반환
  - 자바스크립트 내츄럴템플릿 사용가능, var username2 = /*[[${user.username}]]*/ "test username"; 웹브라우저로 바로 실행 시, 주석처리 되어 test username으로 
    타임리프 렌더링시 "userA"로 
    
  12) 템플릿 조각
+ - 공통 영역의 부분을 지원하기 위해 타임리프에서 템플릿조각, 템플릿레이아웃 기능을 지원.
+ - th:fragment가 있는 태그는 다른곳에 포함되는 코드 조각
+ - template/fragment/footer :: copy : template/fragment/footer.html  >> th:fragment="copy" 라는 부분을 템플릿 조각으로 가져와서 사용
+ - th:insert >> 현재 태그 내부에 추가
+ - th:replace >> 현재태그를 대체
+ - 파라미터 사용은 아래와 같이 사용할 수 있다.
+ 
+ (main.html영역)
+ <div th:replace="~{template/fragment/footer :: copyParam ('데이터1', '데이터2')}"></div>
+ 
+ (footer.html 영역)
+ <footer th:fragment="copyParam (param1, param2)">
+ <p>파라미터 자리 입니다.</p>
+ <p th:text="${param1}"></p>
+ <p th:text="${param2}"></p>
+ </footer>
+ 
+ 13) 템플릿레이아웃
  -
+ ````
+ /resources/templates/template/layout/base.html
+ <html xmlns:th="http://www.thymeleaf.org">
+ <head th:fragment="common_header(title,links)">
+ <title th:replace="${title}">레이아웃 타이틀</title>
+ <!-- 공통 -->
+ <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/awesomeapp.css}">
+ <link rel="shortcut icon" th:href="@{/images/favicon.ico}">
+ <script type="text/javascript" th:src="@{/sh/scripts/codebase.js}"></script>
+ <!-- 추가 -->
+ <th:block th:replace="${links}" />
+ </head> 
+
+ /resources/templates/template/layout/layoutMain.html
+ 
+ <!DOCTYPE html>
+ <html xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="template/layout/base :: common_header(~{::title},~{::link})">
+ <title>메인 타이틀</title>
+ <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+ <link rel="stylesheet" th:href="@{/themes/smoothness/jquery-ui.css}">
+ </head>
+ <body>
+ 메인 컨텐츠
+ </body>
+ </html>
+ ````
